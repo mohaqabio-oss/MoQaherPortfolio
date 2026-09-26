@@ -1,33 +1,40 @@
 import {
-  Cairo,
-  Tajawal,
-  IBM_Plex_Sans_Arabic,
-  Rubik,
-  Amiri,
-  Inter,
-  Plus_Jakarta_Sans,
-  Outfit,
   Space_Grotesk,
-  Playfair_Display,
+  JetBrains_Mono,
+  Plus_Jakarta_Sans,
+  IBM_Plex_Sans_Arabic,
+  Cairo,
 } from 'next/font/google';
 
 /**
- * Arabic & Multilingual Fonts (Full Arabic + Latin subsets)
+ * TECHNICAL / CYBER / MINIMAL FONT SUITE
  */
-export const cairo = Cairo({
-  subsets: ['arabic', 'latin'],
-  variable: '--font-cairo',
+
+// 1. Headings: Space Grotesk (Sharp, technical, brutalist geometric)
+export const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
   display: 'swap',
-  weight: ['400', '600', '700', '900'],
+  weight: ['400', '600', '700'],
 });
 
-export const tajawal = Tajawal({
-  subsets: ['arabic', 'latin'],
-  variable: '--font-tajawal',
+// 2. Metadata / Code / Tags / Technical Accents: JetBrains Mono
+export const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains',
   display: 'swap',
   weight: ['400', '500', '700'],
 });
 
+// 3. Body: Plus Jakarta Sans (Clean, high-legibility contemporary sans)
+export const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-jakarta',
+  display: 'swap',
+  weight: ['400', '500', '600'],
+});
+
+// 4. Arabic Technical: IBM Plex Sans Arabic (Engineering & editorial clarity)
 export const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
   subsets: ['arabic', 'latin'],
   variable: '--font-ibm-arabic',
@@ -35,94 +42,36 @@ export const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
   weight: ['400', '500', '600', '700'],
 });
 
-export const rubik = Rubik({
+// 5. Arabic Cyber Display: Cairo (High-contrast, geometric)
+export const cairo = Cairo({
   subsets: ['arabic', 'latin'],
-  variable: '--font-rubik',
+  variable: '--font-cairo',
   display: 'swap',
-  weight: ['400', '500', '700', '800'],
+  weight: ['600', '700', '900'],
 });
 
-export const amiri = Amiri({
-  subsets: ['arabic', 'latin'],
-  variable: '--font-amiri',
-  display: 'swap',
-  weight: ['400', '700'],
-});
-
-/**
- * English & Latin Primary Fonts (Modern, Editorial, & Tech)
- */
-export const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
-export const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  variable: '--font-plus-jakarta',
-  display: 'swap',
-  weight: ['400', '500', '600', '700', '800'],
-});
-
-export const outfit = Outfit({
-  subsets: ['latin'],
-  variable: '--font-outfit',
-  display: 'swap',
-  weight: ['400', '500', '600', '700'],
-});
-
-export const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  variable: '--font-space-grotesk',
-  display: 'swap',
-  weight: ['400', '500', '600', '700'],
-});
-
-export const playfairDisplay = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-playfair',
-  display: 'swap',
-  weight: ['400', '600', '700', '900'],
-});
-
-/**
- * Combined class string to attach to <html> or <body>
- */
 export const fontVariables = [
-  cairo.variable,
-  tajawal.variable,
-  ibmPlexSansArabic.variable,
-  rubik.variable,
-  amiri.variable,
-  inter.variable,
-  plusJakartaSans.variable,
-  outfit.variable,
   spaceGrotesk.variable,
-  playfairDisplay.variable,
+  jetbrainsMono.variable,
+  plusJakarta.variable,
+  ibmPlexSansArabic.variable,
+  cairo.variable,
 ].join(' ');
 
 /**
- * TipTap Editor Font Registry
- * Used inside TipTap Font Family dropdown to allow dynamic switching
+ * TipTap Editor Font Registry (Updated for Cyber/Minimal Suite)
  */
 export interface TipTapFontOption {
   label: string;
-  name: string; // Used in font-family CSS declaration
+  name: string;
   variable: string;
-  category: 'arabic' | 'latin' | 'editorial';
-  direction?: 'rtl' | 'ltr';
+  category: 'arabic' | 'latin';
 }
 
 export const TIPTAP_FONT_OPTIONS: TipTapFontOption[] = [
-  { label: 'Cairo (كايرو)', name: 'Cairo, sans-serif', variable: 'var(--font-cairo)', category: 'arabic' },
-  { label: 'Tajawal (تجوّل)', name: 'Tajawal, sans-serif', variable: 'var(--font-tajawal)', category: 'arabic' },
-  { label: 'IBM Plex Arabic (آي بي إم)', name: 'IBM Plex Sans Arabic, sans-serif', variable: 'var(--font-ibm-arabic)', category: 'arabic' },
-  { label: 'Rubik (روبيك)', name: 'Rubik, sans-serif', variable: 'var(--font-rubik)', category: 'arabic' },
-  { label: 'Amiri (أميري - كلاسيكي)', name: 'Amiri, serif', variable: 'var(--font-amiri)', category: 'arabic' },
-  { label: 'Plus Jakarta Sans', name: 'Plus Jakarta Sans, sans-serif', variable: 'var(--font-plus-jakarta)', category: 'latin' },
-  { label: 'Inter', name: 'Inter, sans-serif', variable: 'var(--font-inter)', category: 'latin' },
-  { label: 'Outfit', name: 'Outfit, sans-serif', variable: 'var(--font-outfit)', category: 'latin' },
-  { label: 'Space Grotesk (Tech)', name: 'Space Grotesk, monospace', variable: 'var(--font-space-grotesk)', category: 'latin' },
-  { label: 'Playfair Display (Editorial)', name: 'Playfair Display, serif', variable: 'var(--font-playfair)', category: 'editorial' },
+  { label: 'Space Grotesk (Tech Heading)', name: 'Space Grotesk, sans-serif', variable: 'var(--font-space-grotesk)', category: 'latin' },
+  { label: 'JetBrains Mono (Console/Code)', name: 'JetBrains Mono, monospace', variable: 'var(--font-jetbrains)', category: 'latin' },
+  { label: 'Plus Jakarta (Clean Body)', name: 'Plus Jakarta Sans, sans-serif', variable: 'var(--font-jakarta)', category: 'latin' },
+  { label: 'IBM Plex Arabic (آي بي إم تقني)', name: 'IBM Plex Sans Arabic, sans-serif', variable: 'var(--font-ibm-arabic)', category: 'arabic' },
+  { label: 'Cairo (كايرو هندسي)', name: 'Cairo, sans-serif', variable: 'var(--font-cairo)', category: 'arabic' },
 ];

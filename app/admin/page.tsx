@@ -1,122 +1,160 @@
-'use client';
-
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { TipTapEditor } from '@/components/editor/tiptap-editor';
-import { ArrowLeft, Save, Eye } from 'lucide-react';
+import { prisma } from '@/lib/prisma';
+import { Navbar } from '@/components/navbar/navbar';
+import { HeroSection } from '@/components/hero/hero-section';
+import { SectionsView, SectionItem } from '@/components/sections/sections-view';
+import { SocialMediaItem } from '@/components/hero/social-icons';
+import { logoutAction } from '@/app/login/actions';
+import { Terminal, Shield, Plus, LogOut, ExternalLink } from 'lucide-react';
 
-export default function NewCaseStudyPage() {
-  const [title, setTitle] = useState('');
-  const [slug, setSlug] = useState('');
-  const [contentHtml, setContentHtml] = useState('');
-  const [isDraft, setIsDraft] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+const FALLBACK_SOCIALS: SocialMediaItem[] = [
+  { id: '1', platformName: 'GitHub', url: 'https://github.com', iconName: 'github', isVisible: true },
+  { id: '2', platformName: 'LinkedIn', url: 'https://linkedin.com', iconName: 'linkedin', isVisible: true },
+  { id: '3', platformName: 'X / Twitter', url: 'https://x.com', iconName: 'x', isVisible: true },
+  { id: '4', platformName: 'Telegram', url: 'https://t.me', iconName: 'telegram', isVisible: true },
+  { id: '5', platformName: 'Discord', url: 'https://discord.com', iconName: 'discord', isVisible: true },
+];
 
-  // Auto-generate slug from title
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setTitle(val);
-    setSlug(
-      val
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)+/g, '')
-    );
-  };
+const FALLBACK_SECTIONS: SectionItem[] = [
+  {
+    id: 'sec-1',
+    name: 'Programming & Distributed Systems',
+    slug: 'programming',
+    order: 0,
+    projects: [
+      {
+        id: 'p-1',
+        title: 'Distributed Log Consensus Engine',
+        slug: 'distributed-consensus-engine',
+        type: 'ARTICLE_PROJECT',
+        coverImage: null,
+        screenshots: [],
+        isDraft: false,
+        categoryId: 'sec-1',
+      },
+      {
+        id: 'p-2',
+        title: 'Zero-Copy Network Packet Multiplexer',
+        slug: 'zero-copy-multiplexer',
+        type: 'ARTICLE_PROJECT',
+        coverImage: null,
+        screenshots: [],
+        isDraft: false,
+        categoryId: 'sec-1',
+      },
+    ],
+  },
+  {
+    id: 'sec-2',
+    name: 'Academic & Formal Accreditations',
+    slug: 'academic',
+    order: 1,
+    projects: [
+      {
+        id: 'p-3',
+        title: 'Certified Kubernetes Security Specialist (CKS)',
+        slug: 'certified-k8s-security',
+        type: 'CERTIFICATE',
+        issuer: 'Cloud Native Computing Foundation (CNCF)',
+        coverImage: null,
+        screenshots: [],
+        isDraft: false,
+        categoryId: 'sec-2',
+      },
+    ],
+  },
+  {
+    id: 'sec-3',
+    name: 'Leadership & Architecture Advisory',
+    slug: 'leadership',
+    order: 2,
+    projects: [],
+  },
+];
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    // Submit to Server Action or API Route
-    console.log({ title, slug, contentHtml, isDraft });
-    setTimeout(() => {
-      setIsSaving(false);
-      alert('Case study content saved successfully!');
-    }, 600);
-  };
+export const dynamic = 'force-dynamic';
+
+export default async function AdminLiveInlinePage() {
+  let socials: SocialMediaItem[] = FALLBACK_SOCIALS;
+  let sections: SectionItem[] = FALLBACK_SECTIONS;
+
+  try {
+    const [dbSocials, dbSections] = await Promise.all([
+      prisma.socialMedia.findMany({
+        orderBy: { order: 'asc' },
+      }),
+      prisma.section.findMany({
+        orderBy: { order: 'asc' },
+        include: {
+          projects: {
+            orderBy: { order: 'asc' },
+          },
+        },
+      }),
+    ]);
+
+    if (dbSocials.length > 0) socials = dbSocials;
+    if (dbSections.length > 0) sections = dbSections as SectionItem[];
+  } catch {
+    // If DB is offline
+  }
 
   return (
-    <div className="space-y-8">
-        
-        {/* Navigation Bar */}
-        <div className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-neutral-400 hover:text-neutral-100 transition-colors"
+    <div className="relative min-h-screen bg-navy-950 text-slate-200">
+      
+      {/* 1. Global Floating Admin Telemetry HUD Strip */}
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2 bg-navy-900/95 border border-orange-500/50 shadow-2xl backdrop-blur-xl font-mono text-xs">
+        <div className="flex items-center gap-2 pr-3 border-r border-navy-800">
+          <span className="w-2 h-2 bg-orange-500 rounded-none animate-pulse" />
+          <span className="font-bold text-orange-400">INLINE CMS ACTIVE</span>
+          <span className="text-[10px] text-slate-500 hidden sm:inline">[HOVER ELEMENTS TO EDIT]</span>
+        </div>
+
+        <Link
+          href="/admin/projects"
+          className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-500 hover:bg-orange-400 text-black font-bold uppercase text-[10px] tracking-wider transition-all"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span>New Case Study</span>
+        </Link>
+
+        <Link
+          href="/"
+          target="_blank"
+          className="flex items-center gap-1 px-2 py-1 text-slate-400 hover:text-slate-200 text-[10px] uppercase transition-colors"
+        >
+          <span>Live Site</span>
+          <ExternalLink className="w-3 h-3" />
+        </Link>
+
+        <form action={logoutAction} className="pl-2 border-l border-navy-800">
+          <button
+            type="submit"
+            title="Terminate privileged session"
+            className="flex items-center gap-1 text-rose-400 hover:text-rose-300 text-[10px] uppercase font-bold transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Public Portfolio
-          </Link>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setIsDraft(!isDraft)}
-              className={`px-3 py-1.5 rounded-lg font-mono text-xs border transition-colors ${
-                isDraft
-                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
-                  : 'bg-neutral-900 border-neutral-800 text-neutral-400'
-              }`}
-            >
-              {isDraft ? 'Draft Status' : 'Live Status'}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={isSaving}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-100 text-neutral-950 font-mono text-xs uppercase tracking-wider font-bold shadow-lg hover:bg-white transition-all active:scale-95 disabled:opacity-50"
-            >
-              <Save className="w-3.5 h-3.5" />
-              {isSaving ? 'Persisting...' : 'Save Artifact'}
-            </button>
-          </div>
-        </div>
-
-        {/* Header Title & Slug */}
-        <div className="space-y-4 bg-neutral-950/60 border border-neutral-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-xl">
-          <div className="space-y-1">
-            <span className="font-mono text-xs text-neutral-500 uppercase tracking-widest">
-              Dossier Editor // ARTICLE_PROJECT
-            </span>
-            <input
-              type="text"
-              value={title}
-              onChange={handleTitleChange}
-              placeholder="Case Study Headline (e.g. Distributed Consensus Engine)"
-              className="w-full bg-transparent text-2xl sm:text-3xl font-extrabold text-neutral-100 placeholder:text-neutral-600 focus:outline-none tracking-tight"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 pt-2 border-t border-neutral-900 font-mono text-xs text-neutral-400">
-            <span className="text-neutral-600">permalink: /works/</span>
-            <input
-              type="text"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="distributed-consensus-engine"
-              className="bg-transparent text-neutral-300 focus:outline-none underline decoration-neutral-700"
-            />
-          </div>
-        </div>
-
-        {/* TipTap Rich Text Editor */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <span className="font-mono text-xs uppercase tracking-wider text-neutral-400">
-              Document Writer & Architecture Narrative
-            </span>
-            <span className="font-mono text-[11px] text-neutral-500">
-              Bilingual TipTap Engine with 10 Google Fonts
-            </span>
-          </div>
-
-          <TipTapEditor
-            initialContent="<h2>System Architecture & Overview</h2><p>Document the distributed architecture, bottlenecks solved, latency benchmarks, and operational telemetry here...</p>"
-            onChange={(html) => setContentHtml(html)}
-          />
-        </div>
+            <LogOut className="w-3 h-3" />
+            <span className="hidden sm:inline">EXIT</span>
+          </button>
+        </form>
       </div>
-    );
-}
 
+      {/* 2. Live Navbar in Admin Mode (shows ADMIN status tag) */}
+      <Navbar isAdmin={true} />
+
+      {/* 3. Live Hero Section in Admin Mode (all fields are wrapped in EditableField) */}
+      <HeroSection
+        name="ALEXANDER LEVI"
+        role="Staff Systems Architect // Distributed Engines"
+        bio="Architecting high-concurrency event streams and low-latency storage engines. Rigorous focus on algorithmic efficiency, memory layout, and raw typographic clarity."
+        avatarUrl="/avatar-placeholder.png"
+        socials={socials}
+        isAdmin={true}
+      />
+
+      {/* 4. Live Sections View in Admin Mode (all section titles & projects have inline edit tags) */}
+      <SectionsView sections={sections} isAdmin={true} />
+    </div>
+  );
+}

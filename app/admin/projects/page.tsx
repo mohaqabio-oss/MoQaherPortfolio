@@ -1,99 +1,119 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Plus, FileText, ArrowUpRight } from 'lucide-react';
-import { prisma } from '@/lib/prisma';
+import { TipTapEditor } from '@/components/editor/tiptap-editor';
+import { ArrowLeft, Save, Terminal, Shield } from 'lucide-react';
 
-export default async function AdminProjectsPage() {
-  let projects: Array<{
-    id: string;
-    title: string;
-    slug: string;
-    type: string;
-    isDraft: boolean;
-    createdAt: Date;
-  }> = [];
+export default function AdminProjectsWriterPage() {
+  const [title, setTitle] = useState('');
+  const [slug, setSlug] = useState('');
+  const [contentHtml, setContentHtml] = useState('');
+  const [isDraft, setIsDraft] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  try {
-    projects = await prisma.project.findMany({
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        type: true,
-        isDraft: true,
-        createdAt: true,
-      },
-    });
-  } catch {
-    // If DB is offline
-  }
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setTitle(val);
+    setSlug(
+      val
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '')
+    );
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    // Persist to database
+    console.log({ title, slug, contentHtml, isDraft });
+    setTimeout(() => {
+      setIsSaving(false);
+      alert('Case study artifact committed to dossier.');
+    }, 600);
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between pb-6 border-b border-neutral-900">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-100">
-            Projects & Case Studies
-          </h1>
-          <p className="text-xs font-mono text-neutral-400 mt-1">
-            MANAGE DOSSIER ARTIFACTS // CERTIFICATES & ARTICLES
-          </p>
-        </div>
-
-        <Link
-          href="/admin"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-100 hover:bg-white text-neutral-950 font-mono text-xs uppercase tracking-wider font-bold transition-all shadow-md active:scale-95"
-        >
-          <Plus className="w-4 h-4" />
-          <span>New Case Study</span>
-        </Link>
-      </div>
-
-      {projects.length === 0 ? (
-        <div className="p-12 rounded-2xl bg-neutral-950/60 border border-neutral-800/80 text-center space-y-3">
-          <div className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 mx-auto flex items-center justify-center text-neutral-400">
-            <FileText className="w-5 h-5" />
-          </div>
-          <h3 className="font-mono text-sm text-neutral-300 font-semibold">No Projects Recorded Yet</h3>
-          <p className="text-xs text-neutral-500 max-w-sm mx-auto">
-            Use the TipTap editor to publish your first high-concurrency systems case study or certificate artifact.
-          </p>
+    <div className="min-h-screen bg-navy-950 text-slate-200 p-4 sm:p-8 lg:p-12 cyber-grid">
+      <div className="max-w-5xl mx-auto space-y-8">
+        
+        {/* Top Header */}
+        <div className="flex items-center justify-between pb-4 border-b border-navy-800">
           <Link
             href="/admin"
-            className="inline-block pt-2 text-xs font-mono text-neutral-400 hover:text-white underline decoration-neutral-700"
+            className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-400 hover:text-orange-400 transition-colors"
           >
-            Create first case study →
+            <ArrowLeft className="w-4 h-4" />
+            [BACK TO INLINE VIEWPORT]
           </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-3">
-          {projects.map((p) => (
-            <div
-              key={p.id}
-              className="flex items-center justify-between p-4 rounded-xl bg-neutral-950/80 border border-neutral-800/80 hover:border-neutral-700 transition-all"
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setIsDraft(!isDraft)}
+              className={`px-3 py-1 font-mono text-xs border transition-colors ${
+                isDraft
+                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                  : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+              }`}
             >
-              <div className="space-y-1">
-                <span className="font-semibold text-sm text-neutral-200">{p.title}</span>
-                <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-500">
-                  <span>/works/{p.slug}</span>
-                  <span>•</span>
-                  <span>{p.type}</span>
-                  <span>•</span>
-                  <span>{p.isDraft ? 'DRAFT' : 'LIVE'}</span>
-                </div>
-              </div>
-              <Link
-                href={`/works/${p.slug}`}
-                target="_blank"
-                className="p-2 rounded-lg bg-neutral-900 text-neutral-400 hover:text-white transition-colors"
-              >
-                <ArrowUpRight className="w-4 h-4" />
-              </Link>
-            </div>
-          ))}
+              {isDraft ? '// STATUS: DRAFT' : '// STATUS: LIVE'}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-400 text-black font-mono text-xs uppercase tracking-wider font-bold shadow-cyber-orange transition-all active:scale-95 disabled:opacity-50"
+            >
+              <Save className="w-3.5 h-3.5" />
+              <span>{isSaving ? 'COMMITTING...' : '[COMMIT CASE STUDY]'}</span>
+            </button>
+          </div>
         </div>
-      )}
+
+        {/* Title and Metadata Inputs */}
+        <div className="bg-navy-900 border border-navy-800 p-6 space-y-4">
+          <div className="flex items-center gap-2 font-mono text-xs text-orange-500">
+            <Terminal className="w-3.5 h-3.5" />
+            <span>METADATA // DOSSIER ARTICLE ARTIFACT</span>
+          </div>
+
+          <input
+            type="text"
+            value={title}
+            onChange={handleTitleChange}
+            placeholder="Case Study Headline (e.g. Distributed Consensus Engine)"
+            className="w-full bg-navy-950 border border-navy-800 focus:border-orange-500 text-xl sm:text-2xl font-heading font-bold text-slate-100 placeholder:text-slate-600 px-4 py-3 focus:outline-none transition-all"
+          />
+
+          <div className="flex items-center gap-2 font-mono text-xs text-slate-500">
+            <span>PERMALINK: /works/</span>
+            <input
+              type="text"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              placeholder="distributed-consensus-engine"
+              className="bg-navy-950 border border-navy-800 focus:border-orange-500 text-orange-400 px-2 py-1 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* TipTap Technical Document Editor */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between font-mono text-xs text-slate-500">
+            <span>ARCHITECTURE & NARRATIVE DOCUMENT</span>
+            <span className="text-orange-400">ENGINE: TIPTAP BILINGUAL SUITE</span>
+          </div>
+
+          <TipTapEditor
+            initialContent="<h2>System Architecture & Overview</h2><p>Document the distributed architecture, bottlenecks solved, latency benchmarks, and operational telemetry here...</p>"
+            onChange={(html) => setContentHtml(html)}
+          />
+        </div>
+
+      </div>
     </div>
   );
 }

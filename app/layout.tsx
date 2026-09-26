@@ -17,9 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" dir="ltr" className={fontVariables}>
-      <body className="min-h-screen bg-[#080808] text-neutral-100 antialiased selection:bg-neutral-800 selection:text-white overflow-x-hidden font-sans">
+      <body className="min-h-screen bg-navy-950 text-slate-200 antialiased selection:bg-orange-500/20 selection:text-orange-400 overflow-x-hidden font-sans">
         {children}
       </body>
     </html>
+
   );
 }

@@ -9,23 +9,29 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
+        background: '#050810',
+        foreground: '#e2e8f0',
+        navy: {
+          800: '#11182c',
+          900: '#0a0f1d',
+          950: '#050810',
+        },
+        orange: {
+          400: '#ff8c33',
+          500: '#ff6a00',
+          600: '#e05300',
+        },
       },
       fontFamily: {
-        // Arabic & Bilingual
+        heading: ['var(--font-space-grotesk)', 'sans-serif'],
+        mono: ['var(--font-jetbrains)', 'monospace'],
+        sans: ['var(--font-jakarta)', 'sans-serif'],
+        arabic: ['var(--font-ibm-arabic)', 'sans-serif'],
         cairo: ['var(--font-cairo)', 'sans-serif'],
-        tajawal: ['var(--font-tajawal)', 'sans-serif'],
-        'ibm-arabic': ['var(--font-ibm-arabic)', 'sans-serif'],
-        rubik: ['var(--font-rubik)', 'sans-serif'],
-        amiri: ['var(--font-amiri)', 'serif'],
-
-        // English & Latin
-        inter: ['var(--font-inter)', 'sans-serif'],
-        'plus-jakarta': ['var(--font-plus-jakarta)', 'sans-serif'],
-        outfit: ['var(--font-outfit)', 'sans-serif'],
-        'space-grotesk': ['var(--font-space-grotesk)', 'monospace'],
-        playfair: ['var(--font-playfair)', 'serif'],
+      },
+      boxShadow: {
+        'cyber-orange': '0 0 20px -3px rgba(255, 106, 0, 0.35)',
+        'cyber-subtle': '0 0 15px -2px rgba(10, 15, 29, 0.8)',
       },
     },
   },
