@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProjectType {
+  CERTIFICATE
+  ARTICLE_PROJECT
+}
+
+model Section {
+  id        String    @id @default(cuid())
+  name      String    @unique // e.g. "Programming", "Academic", "Creative", "Voluntary", "Leadership"
+  slug      String    @unique
+  order     Int       @default(0)
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([order])
+  @@index([slug])
+}
+
+model Project {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  type        ProjectType
+
+  // === CERTIFICATE SPECIFIC FIELDS ===
+  coverImage  String?     // UploadThing asset URL
+  issuer      String?     // e.g. "Harvard CS50", "AWS", "Google Cloud"
+  date        DateTime?   // Issuance or completion date
+
+  // === ARTICLE / PROJECT SPECIFIC FIELDS ===
+  content     String?     @db.Text // Rich-text HTML output from TipTap
+  screenshots String[]    @default([]) // Dynamic gallery of URLs from UploadThing
+
+  // === COMMON METADATA & RELATIONS ===
+  isDraft     Boolean     @default(false)
+  order       Int         @default(0)
+  featured    Boolean     @default(false)
+
+  categoryId  String
+  section     Section     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([categoryId])
+  @@index([type])
+  @@index([isDraft])
+  @@index([order])
+  @@index([slug])
+}
+
+model SocialMedia {
+  id           String   @id @default(cuid())
+  platformName String   // e.g. "GitHub", "LinkedIn", "X", "Telegram", "Discord"
+  url          String
+  iconName     String   // Lucide icon identifier or SVG token, e.g. "github", "linkedin", "twitter"
+  isVisible    Boolean  @default(true)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([isVisible, order])
+}
